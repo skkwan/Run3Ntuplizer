@@ -25,10 +25,10 @@ bool compareByPtJets (l1extra::L1JetParticle i,l1extra::L1JetParticle j) { retur
 bool compareByPtTaus (l1t::Tau i,l1t::Tau j) { return(i.pt()>j.pt()); };
 
 Run3Ntuplizer::Run3Ntuplizer( const ParameterSet & cfg ) :
-  genSrc_((cfg.getParameter<edm::InputTag>( "genParticles"))),
-  tauSrc_(       consumes<vector<pat::Tau>     >(cfg.getParameter<edm::InputTag>("miniTaus"))),
-  stage2TauSrc_( consumes<vector <l1extra::L1JetParticle> >(cfg.getParameter<edm::InputTag>("stage2Taus" ))),
-  stage2IsoTauSrc_( consumes<vector<l1extra::L1JetParticle> >(cfg.getParameter<edm::InputTag>("stage2IsoTaus"))),
+  genSrc_((cfg.getParameter<edm::InputTag>("genParticles"))),
+  tauSrc_(consumes<vector<pat::Tau> >(cfg.getParameter<edm::InputTag>("miniTaus"))),
+  //stage2TauSrc_( consumes<vector <l1extra::L1JetParticle> >(cfg.getParameter<edm::InputTag>("stage2Taus" ))),
+  //  stage2IsoTauSrc_( consumes<vector<l1extra::L1JetParticle> >(cfg.getParameter<edm::InputTag>("stage2IsoTaus"))),
   stage2DigisTauSrc_( consumes<BXVector<l1t::Tau> >(cfg.getParameter<edm::InputTag>("stage2DigisTaus")))
 {
   genToken_ =     consumes<std::vector<reco::GenParticle> >(genSrc_);
@@ -73,7 +73,7 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
   lumi = evt.id().luminosityBlock();
   event = evt.id().event();
 
-  edm::Handle < vector<l1extra::L1JetParticle> > stage2Taus;
+  //  edm::Handle < vector<l1extra::L1JetParticle> > stage2Taus;
   edm::Handle < vector<l1extra::L1JetParticle> > stage2IsoTaus;
   edm::Handle < BXVector<l1t::Tau> > stage2DigiTaus;
 
@@ -81,42 +81,51 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
 
   if(!evt.getByToken( tauSrc_, miniTaus))
     cout<<"No miniAOD particles found"<<std::endl;
-
+  
+  /*
   if(!evt.getByToken(stage2TauSrc_, stage2Taus))
     cout<<"ERROR GETTING THE STAGE 2 TAUS"<<std::endl;
   else
     cout<<"Stage2 Tau Size: "<<stage2Taus->size()<<std::endl;
+  */  
 
   if(!evt.getByToken(stage2DigisTauSrc_, stage2DigiTaus))
     cout<<"ERROR GETTING THE STAGE 2 TAUS"<<std::endl;
   else
     cout<<"Stage2 Digi Tau Size: "<<stage2DigiTaus->size()<<std::endl;
 
+  /*
   if(!evt.getByToken(stage2IsoTauSrc_, stage2IsoTaus))
     cout<<"ERROR GETTING THE STAGE 2 ISO TAUS"<<std::endl;
+  */
 
-  //sort the L1 taus
-  vector<l1t::Tau> l1TausSorted;
-  vector<l1extra::L1JetParticle> l1IsoTausSorted;
+  // Get L1 taus and sort them
+  std::vector<l1t::Tau> l1TausSorted;
+  //  vector<l1extra::L1JetParticle> l1IsoTausSorted;
   for( BXVector<l1t::Tau>::const_iterator l1Tau = stage2DigiTaus->begin(); l1Tau != stage2DigiTaus->end(); l1Tau++ ){
     l1TausSorted.push_back(*l1Tau);
+    cout<<"l1Tau Pt: "<<l1Tau->pt()<<" Eta: "<<l1Tau->eta()<<" Phi: "<<l1Tau->phi()<< endl;
   }
 
+  std::sort(l1TausSorted.begin(),l1TausSorted.end(),compareByPtTaus); 
+
+  /*
   for( vector<l1extra::L1JetParticle>::const_iterator l1Tau = stage2IsoTaus->begin(); l1Tau != stage2IsoTaus->end(); l1Tau++ ){
     l1IsoTausSorted.push_back(*l1Tau);
     if(abs(l1Tau->eta()) < 2.4) l1IsoTausSorted.push_back(*l1Tau);
     cout<<"l1Tau Pt: "<<l1Tau->pt()<<" Eta: "<<l1Tau->eta()<<" Phi: "<<l1Tau->phi()<<std::endl;
   }
 
-  std::sort(l1TausSorted.begin(),l1TausSorted.end(),compareByPtTaus);
   std::sort(l1IsoTausSorted.begin(),l1IsoTausSorted.end(),compareByPtJets);
+  */
 
-  // Now for the Taus
+  // Now for the Gen Taus
   edm::Handle<GenParticleCollectionType> genParticleHandle;
   if(!isData_){
+
     if(!evt.getByToken(genToken_,genParticleHandle))
       cout<<"No gen Particles Found "<<std::endl;
-  }  
+  }
 
   vector<reco::GenParticle> genTaus;
   vector<reco::GenParticle> genParticles;
@@ -138,9 +147,21 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
       }*/
       if(abs(ptr->pdgId())==15){
 	genTaus.push_back(*ptr);
-      }
-    }
+	
+	const reco::Candidate *mom = ptr->mother();
+	int motherID = mom->pdgId();
 
+	cout << "Added genTau: Mother ID was " << motherID << endl;
+      }
+      if (abs(ptr->pdgId()) == 23)  // Z boson
+	{
+
+	  if (ptr->isLastCopy())
+	    {
+	      cout << "Z boson which is the last copy" << endl;
+	    }
+	}
+    }
     for(auto genTau: genTaus){
       reco::Candidate::LorentzVector visGenTau= getVisMomentum(&genTau, &genParticles);
       genVisTau Temp;
@@ -148,13 +169,19 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
       Temp.p4 = visGenTau;
       Temp.decayMode = decayMode;
       genVisTaus.push_back(Temp);
-      //cout<<"Tau Decay Mode "<<decayMode<<"tau vis pt: "<<genPt<<" genEta: "<<genEta<<" genPhi: "<<genPhi<<std::endl;
+      
     }
-  }
-
-  //  zeroOutAllVariables();
   
-  if(miniTaus->size() > 0){
+  if (genTaus.size() == 0)
+    cout << "No gen Taus found!" << endl;
+  else
+    cout << "Found " << genTaus.size() << " gen Taus" << endl;
+  } 
+
+  
+  //  zeroOutAllVariables();
+
+  for (unsigned int i = 0; i < miniTaus->size(); i++) {
     recoTauPt        = -99;
     recoTauEta       = -99;
     recoTauPhi       = -99;
@@ -163,62 +190,72 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
     //recoRawIso     = -99;
     recoTauDM  = -99;
     
-    if(miniTaus->at(0).tauID("decayModeFinding")>0){
-      recoTauPt         = miniTaus->at(0).p4().Pt();
-      recoTauEta        = miniTaus->at(0).p4().Eta();
-      recoTauPhi        = miniTaus->at(0).p4().Phi();
+    if(miniTaus->at(i).tauID("decayModeFinding")>0){
+      recoTauPt         = miniTaus->at(i).p4().Pt();
+      recoTauEta        = miniTaus->at(i).p4().Eta();
+      recoTauPhi        = miniTaus->at(i).p4().Phi();
       //recoChargedIso = miniTaus->at(i).tauID("chargedIsoPtSum");
       //recoNeutralIso = miniTaus->at(i).tauID("neutralIsoPtSum");
       //recoRawIso     = miniTaus->at(i).tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
-      recoTauDM  = miniTaus->at(0).decayMode();
-      //cout<<"=== Found recoTau: "<<recoPt<<" Eta: "<<recoEta<<" Phi: "<< recoPhi <<std::endl;
-      
-      l1TauPt  = -99;
-      l1TauEta = -99;
-      l1TauPhi = -99;
-      
-      for(unsigned int i = 0; i < l1TausSorted.size(); i++){
-	if(( reco::deltaR(l1TausSorted.at(i).eta(), l1TausSorted.at(i).phi(), 
-			  recoTauEta, recoTauPhi) < 0.5 )
-	   && (l1TausSorted.at(i).pt() > l1TauPt))
-	  {
-	    l1TauPt  = l1TausSorted.at(i).pt();
-	    l1TauEta = l1TausSorted.at(i).eta();
-	    l1TauPhi = l1TausSorted.at(i).phi();
-	    break;
-	  }
-      }
+      recoTauDM  = miniTaus->at(i).decayMode();
+      cout<<"=== Found recoTau: "<<recoTauPt<<" Eta: "<<recoTauEta<<" Phi: "<< recoTauPhi <<std::endl;
+    }
+    else{
+      continue;
+    }
+    
+    l1TauPt  = -99;
+    l1TauEta = -99;
+    l1TauPhi = -99;
+    
+    for(unsigned int i = 0; i < l1TausSorted.size(); i++){
+      if(( reco::deltaR(l1TausSorted.at(i).eta(), l1TausSorted.at(i).phi(), 
+			recoTauEta, recoTauPhi) < 0.5 )
+	 && (l1TausSorted.at(i).pt() > l1TauPt))
+	{
+	  l1TauPt  = l1TausSorted.at(i).pt();
+	  l1TauEta = l1TausSorted.at(i).eta();
+	  l1TauPhi = l1TausSorted.at(i).phi();
+	  cout << "=== Matched l1Tau : " << l1TauPt << " Eta: " << l1TauEta << " Phi: " << l1TauPhi << " === " << endl;
 
-      genTauPt  = -99;
-      genTauEta = -99;
-      genTauPhi = -99;
-      genTauDM  = -99;
-
-      if(!isData_)
-	for(auto genTau :genVisTaus){
-	  if(( reco::deltaR(genTau.p4.eta(), genTau.p4.phi(), 
-			    recoTauEta, recoTauPhi) < 0.5 )){
-	    genTauPt  = genTau.p4.pt();
-	    genTauEta = genTau.p4.eta();
-	    genTauPhi = genTau.p4.phi();
-	    genTauDM  = genTau.decayMode;
+	}
+    }
+    
+    genTauPt  = -99;
+    genTauEta = -99;
+    genTauPhi = -99;
+    genTauDM  = -99;
+    
+    if(!isData_)
+      {
+	for(auto genTau :genTaus){
+	  reco::Candidate::LorentzVector visGenTau = getVisMomentum(&genTau, &genParticles);
+	    
+	  if( reco::deltaR(recoTauEta, recoTauPhi, 
+			   visGenTau.eta(), visGenTau.phi()) < 0.5 ) {
+	    genTauPt  = visGenTau.pt();
+	    genTauEta = visGenTau.eta();
+	    genTauPhi = visGenTau.phi();
+	    genTauDM  = GetDecayMode(&genTau);
+	    
+	    cout << "=== Matched genTau: " << genTauPt << " Eta: " << genTauEta << " Phi: " << genTauPhi << " === " << endl;
 	    break;
 	  }
 	}
-      
-    }
-  }
+	
+      } // end of isData   
   
   efficiencyTree->Fill();
-
+  }
 }
+
 
 
 void Run3Ntuplizer::zeroOutAllVariables(){
 
-  recoTauPt = -99;  recoTauEta = -99;  recoTauPhi = -99;  
-  l1TauPt   = -99;  l1TauEta   = -99;  recoTauEta = -99;
-
+  recoTauPt = -99;  recoTauEta = -99;  recoTauPhi = -99;  recoTauDM = -99;
+  l1TauPt   = -99;  l1TauEta   = -99;  l1TauPhi   = -99;  
+  genTauPt  = -99;  genTauEta  = -99;  genTauPhi  = -99;  genTauDM  = -99;
 
 };
 

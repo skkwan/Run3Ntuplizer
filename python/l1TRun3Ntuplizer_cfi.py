@@ -12,12 +12,12 @@ l1NtupleProducer = cms.EDAnalyzer("Run3Ntuplizer",
                                   UCTRegion               = cms.InputTag('uct2016EmulatorDigis'),
                                   l1UCTCentralJets        = cms.InputTag("uct2016EmulatorDigis","Central"),
                                   l1UCTForwardJets        = cms.InputTag("uct2016EmulatorDigis","Forward"),
-                                  stage2Taus              = cms.InputTag("l1extraParticles","Tau"),
+#                                  stage2Taus              = cms.InputTag("l1extraParticles","Tau"),
                                   stage2IsoTaus           = cms.InputTag("l1extraParticles","IsoTau"),
                                   stage2DigisTaus         = cms.InputTag("caloStage2Digis", "Tau"),
                                   gmtStage2Digis          = cms.InputTag("simGmtStage2Digis"),
                                   genJets                 = cms.InputTag("slimmedGenJets"),
-                                  isData                  = cms.bool(True),
-                                  folderName              = cms.untracked.string("Stage3Regions")
+                                  isData                  = cms.bool(False),
+                                  folderName              = cms.untracked.string("Stage3")
 )
-#BXVector<l1t::Muon>                   "simGmtStage2Digis"         ""                "HLT"
+
