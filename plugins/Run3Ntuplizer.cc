@@ -104,7 +104,7 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
   //  vector<l1extra::L1JetParticle> l1IsoTausSorted;
   for( BXVector<l1t::Tau>::const_iterator l1Tau = stage2DigiTaus->begin(); l1Tau != stage2DigiTaus->end(); l1Tau++ ){
     l1TausSorted.push_back(*l1Tau);
-    cout<<"l1Tau Pt: "<<l1Tau->pt()<<" Eta: "<<l1Tau->eta()<<" Phi: "<<l1Tau->phi()<< endl;
+    //    cout<<"l1Tau Pt: "<<l1Tau->pt()<<" Eta: "<<l1Tau->eta()<<" Phi: "<<l1Tau->phi()<< endl;
   }
 
   std::sort(l1TausSorted.begin(),l1TausSorted.end(),compareByPtTaus); 
@@ -148,19 +148,7 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
       if(abs(ptr->pdgId())==15){
 	genTaus.push_back(*ptr);
 	
-	const reco::Candidate *mom = ptr->mother();
-	int motherID = mom->pdgId();
-
-	cout << "Added genTau: Mother ID was " << motherID << endl;
       }
-      if (abs(ptr->pdgId()) == 23)  // Z boson
-	{
-
-	  if (ptr->isLastCopy())
-	    {
-	      cout << "Z boson which is the last copy" << endl;
-	    }
-	}
     }
     for(auto genTau: genTaus){
       reco::Candidate::LorentzVector visGenTau= getVisMomentum(&genTau, &genParticles);
@@ -243,7 +231,7 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
 	  }
 	}
 	
-      } // end of isData   
+      }
   
   efficiencyTree->Fill();
   }

@@ -77,21 +77,23 @@ process.uct2016EmulatorDigis.verbose = cms.bool(False)
 process.uct2016EmulatorDigis.ecalToken = cms.InputTag("l1tCaloLayer1Digis")
 process.uct2016EmulatorDigis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             #fileNames = cms.untracked.vstring(inputFiles)#,
                             #secondaryFileNames = cms.untracked.vstring(secondaryMap[options.inputFiles[0]])
                             fileNames = cms.untracked.vstring('/store/mc/PhaseIIMTDTDRAutumn18MiniAOD/DYToLL_M-50_14TeV_pythia8_pilot1/MINIAODSIM/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/A40F504F-88AA-BA44-822B-2FF02ADFACF3.root'),
                             secondaryFileNames = cms.untracked.vstring(
-                                       '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/257D1965-FB09-1148-9DA4-B7DAD07BB6D3.root'
+                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/257D1965-FB09-1148-9DA4-B7DAD07BB6D3.root',
+                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1F1DD211-18B8-EF4C-A9DF-A79ED5E48983.root',
+                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1BA14D04-C386-5D41-859F-818864B04297.root'
                                                                    ),
                                 inputCommands = cms.untracked.vstring("keep *", 
                                                                       "drop patHcalDepthEnergyFractionsedmValueMap_packedPFCandidates_hcalDepthEnergyFractions_RECO")
 )
 
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:46")
+process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:46", "1:5", "1:77")
 
 process.options = cms.untracked.PSet(
 
