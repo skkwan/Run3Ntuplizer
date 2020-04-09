@@ -34,11 +34,6 @@ print 'Getting files for run %d...' % options.runNumber
 #    raise Exception('No files found for dataset %s run %d' % (options.dataStream, options.runNumber))
 #print 'Ok, time to analyze'
 
-secondaryMap = {
-        "root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18MiniAOD/DYToLL_M-50_14TeV_pythia8_pilot1/MINIAODSIM/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/A40F504F-88AA-BA44-822B-2FF02ADFACF3.root": [
-        'root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/257D1965-FB09-1148-9DA4-B7DAD07BB6D3.root']
-# add more files separated by commas, inside the square brackets
-}
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -79,14 +74,28 @@ process.uct2016EmulatorDigis.hcalToken = cms.InputTag("l1tCaloLayer1Digis")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
+#process.source = cms.Source("PoolSource")
+
+#process.source.fileNames = cms.untracked.vstring( 
+# "root://cmsxrootd.fnal.gov//store/mc/PhaseIITDRSpring19MiniAOD/GluGluHToTauTau_M125_14TeV_powheg_pythia8_TuneCP5/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/26D2C453-C4D7-214D-902B-0BE730BA38D2.root")
+
+
+#process.source.secondaryFileNames = cms.untracked.vstring( 
+# "root://cmsxrootd.fnal.gov//store/mc/PhaseIITDRSpring19DR/GluGluHToTauTau_M125_14TeV_powheg_pythia8_TuneCP5/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v2/130000/534564BB-36D1-EE4C-9C20-6275568C1C09.root","root://cmsxrootd.fnal.gov//store/mc/PhaseIITDRSpring19DR/GluGluHToTauTau_M125_14TeV_powheg_pythia8_TuneCP5/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v2/130000/A9B3A43E-20FB-F54B-BC79-1E1EB489BA02.root")
+
+#process.source.inputCommands = cms.untracked.vstring("keep *", 
+#                                                     "drop patHcalDepthEnergyFractionsedmValueMap_packedPFCandidates_hcalDepthEnergyFractions_RECO")
+
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange("1:49","1:42")
+
 process.source = cms.Source("PoolSource",
                             #fileNames = cms.untracked.vstring(inputFiles)#,
                             #secondaryFileNames = cms.untracked.vstring(secondaryMap[options.inputFiles[0]])
-                            fileNames = cms.untracked.vstring('/store/mc/PhaseIIMTDTDRAutumn18MiniAOD/DYToLL_M-50_14TeV_pythia8_pilot1/MINIAODSIM/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/A40F504F-88AA-BA44-822B-2FF02ADFACF3.root'),
+                            fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18MiniAOD/DYToLL_M-50_14TeV_pythia8_pilot1/MINIAODSIM/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/A40F504F-88AA-BA44-822B-2FF02ADFACF3.root'),
                             secondaryFileNames = cms.untracked.vstring(
-                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/257D1965-FB09-1148-9DA4-B7DAD07BB6D3.root',
-                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1F1DD211-18B8-EF4C-A9DF-A79ED5E48983.root',
-                                '/store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1BA14D04-C386-5D41-859F-818864B04297.root'
+                                'root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/257D1965-FB09-1148-9DA4-B7DAD07BB6D3.root',
+                                'root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1F1DD211-18B8-EF4C-A9DF-A79ED5E48983.root',
+                                'root://cmsxrootd.fnal.gov//store/mc/PhaseIIMTDTDRAutumn18DR/DYToLL_M-50_14TeV_pythia8_pilot1/FEVT/PU200_pilot_103X_upgrade2023_realistic_v2-v1/80000/1BA14D04-C386-5D41-859F-818864B04297.root'
                                                                    ),
                                 inputCommands = cms.untracked.vstring("keep *", 
                                                                       "drop patHcalDepthEnergyFractionsedmValueMap_packedPFCandidates_hcalDepthEnergyFractions_RECO")

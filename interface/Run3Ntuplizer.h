@@ -130,7 +130,9 @@ class Run3Ntuplizer : public edm::EDAnalyzer {
 
   double genTauPt,  genTauEta,  genTauPhi,  genTauDM;
   double recoTauPt, recoTauEta, recoTauPhi, recoTauDM;
+  double recoRawIso, recoChargedIso, recoNeutralIso;
   double l1TauPt, l1TauEta, l1TauPhi;
+  int l1IsoEt;
 
   bool isData_;
 

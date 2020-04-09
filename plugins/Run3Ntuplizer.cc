@@ -48,10 +48,16 @@ void Run3Ntuplizer::createBranchesTau(TTree *tree){
   tree->Branch("l1TauEta",      &l1TauEta,  "l1TauEta/D");
   tree->Branch("l1TauPhi",      &l1TauPhi,  "l1TauPhi/D");
 
+  tree->Branch("l1IsoEt",       &l1IsoEt,   "l1IsoEt/I"); 
+  
   tree->Branch("recoTauPt",     &recoTauPt, "recoTauPt/D");
   tree->Branch("recoTauEta",    &recoTauEta,"recoTauEta/D");
   tree->Branch("recoTauPhi",    &recoTauPhi,"recoTauPhi/D");
   tree->Branch("recoTauDM",     &recoTauDM, "recoTauDM/D");
+  
+  tree->Branch("recoChargedIso", &recoChargedIso, "recoChargedIso/D");
+  tree->Branch("recoNeutralIso", &recoNeutralIso, "recoNeutralIso/D");
+  tree->Branch("recoRawIso",     &recoRawIso,     "recoRawIso/D");
 
   tree->Branch("genTauPt",      &genTauPt,  "genTauPt/D");
   tree->Branch("genTauEta",     &genTauEta, "genTauEta/D");
@@ -169,24 +175,31 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
   
   //  zeroOutAllVariables();
 
+  // Temporary: 
+  for(unsigned int i = 0; i < l1TausSorted.size(); i++){
+    l1IsoEt  = 100;
+    l1IsoEt  = l1TausSorted.at(i).isoEt();
+    cout << "No reco matching: l1 Iso Et : " << l1IsoEt << endl;
+  }
+
   for (unsigned int i = 0; i < miniTaus->size(); i++) {
     recoTauPt        = -99;
     recoTauEta       = -99;
     recoTauPhi       = -99;
-    //recoChargedIso = -99;
-    //recoNeutralIso = -99;
-    //recoRawIso     = -99;
+    recoChargedIso = -99;
+    recoNeutralIso = -99;
+    recoRawIso     = -99;
     recoTauDM  = -99;
     
     if(miniTaus->at(i).tauID("decayModeFinding")>0){
       recoTauPt         = miniTaus->at(i).p4().Pt();
       recoTauEta        = miniTaus->at(i).p4().Eta();
       recoTauPhi        = miniTaus->at(i).p4().Phi();
-      //recoChargedIso = miniTaus->at(i).tauID("chargedIsoPtSum");
-      //recoNeutralIso = miniTaus->at(i).tauID("neutralIsoPtSum");
-      //recoRawIso     = miniTaus->at(i).tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+      recoChargedIso = miniTaus->at(i).tauID("chargedIsoPtSum");
+      recoNeutralIso = miniTaus->at(i).tauID("neutralIsoPtSum");
+      recoRawIso     = miniTaus->at(i).tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
       recoTauDM  = miniTaus->at(i).decayMode();
-      cout<<"=== Found recoTau: "<<recoTauPt<<" Eta: "<<recoTauEta<<" Phi: "<< recoTauPhi <<std::endl;
+      cout<<"=== recoTau: "<<recoTauPt<<" Eta: "<<recoTauEta<<" Phi: "<< recoTauPhi <<std::endl;
     }
     else{
       continue;
@@ -195,6 +208,7 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
     l1TauPt  = -99;
     l1TauEta = -99;
     l1TauPhi = -99;
+    l1IsoEt  = -99;
     
     for(unsigned int i = 0; i < l1TausSorted.size(); i++){
       if(( reco::deltaR(l1TausSorted.at(i).eta(), l1TausSorted.at(i).phi(), 
@@ -204,7 +218,8 @@ void Run3Ntuplizer::analyze( const Event& evt, const EventSetup& es )
 	  l1TauPt  = l1TausSorted.at(i).pt();
 	  l1TauEta = l1TausSorted.at(i).eta();
 	  l1TauPhi = l1TausSorted.at(i).phi();
-	  cout << "=== Matched l1Tau : " << l1TauPt << " Eta: " << l1TauEta << " Phi: " << l1TauPhi << " === " << endl;
+	  l1IsoEt  = l1TausSorted.at(i).isoEt(); 
+	    cout << "=== Matched l1Tau : " << l1TauPt << " Eta: " << l1TauEta << " Phi: " << l1TauPhi << " IsoEt: " << l1IsoEt << " === " << endl;
 
 	}
     }
@@ -243,6 +258,7 @@ void Run3Ntuplizer::zeroOutAllVariables(){
 
   recoTauPt = -99;  recoTauEta = -99;  recoTauPhi = -99;  recoTauDM = -99;
   l1TauPt   = -99;  l1TauEta   = -99;  l1TauPhi   = -99;  
+  l1IsoEt   = -99;
   genTauPt  = -99;  genTauEta  = -99;  genTauPhi  = -99;  genTauDM  = -99;
 
 };
