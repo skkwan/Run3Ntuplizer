@@ -1,12 +1,11 @@
 import os
 import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("L1TTauSummary")
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process("L1TTauSummary", eras.Run2_2018)
 
 #import EventFilter.L1TXRawToDigi.util as util
 
 from FWCore.ParameterSet.VarParsing import VarParsing
-
 
 options = VarParsing()
 options.register('runNumber', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, 'Run to analyze')
@@ -119,7 +118,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("l1TFullEvent.root"),
-    outputCommands = cms.untracked.vstring('drop *') #'keep *_*_*_L1TCaloSummaryTest')
+    outputCommands = cms.untracked.vstring('keep *') #'keep *_*_*_L1TCaloSummaryTest')
     #outputCommands = cms.untracked.vstring('drop *', 'keep *_l1tCaloLayer1Digis_*_*, keep *_*_*_L1TCaloSummaryTest' )
 )
 
